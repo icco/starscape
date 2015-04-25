@@ -14,45 +14,25 @@
         var i = 0;
         window.setInterval(function () {
           k = Object.keys(json)[i];
-          for (j in json[k]) {
+          j = 0
             var sample = new ProceduralSample(json[k][j].x, json[k][j].y, json[k][j].lum);
             sample.play();
-          }
           i += 1;
           i %= Object.keys(json).length;
         }, 500);
       });
 
-      function WhiteNoiseScript(height, width) {
-        this.width = width;
-        this.height = height;
-        this.node = context.createScriptProcessor(1024, 1, 2);
-        this.node.onaudioprocess = this.process;
-      }
-
-      WhiteNoiseScript.prototype.process = function(e) {
-        var L = e.outputBuffer.getChannelData(0);
-        var R = e.outputBuffer.getChannelData(1);
-        for (var i = 0; i < L.length; i++) {
-          L[i] = ((Math.random() * 2) - 1);
-          R[i] = L[i];
-        }
-        console.log(L, R);
-      };
-
-      WhiteNoiseScript.prototype.connect = function(dest) {
-        this.node.connect(dest);
-      };
-
-      function WhiteNoiseGenerated(callback) {
+      function WhiteNoiseGenerated(height, width, callback) {
         // Generate a 5 second white noise buffer.
         var lengthInSamples = 5 * context.sampleRate;
         var buffer = context.createBuffer(1, lengthInSamples, context.sampleRate);
         var data = buffer.getChannelData(0);
 
         for (var i = 0; i < lengthInSamples; i++) {
-          data[i] = ((Math.random() * 2) - 1);
+          // data[i] = (width / height);
+          data[i] = ((width % 2) - 1);
         }
+        console.log(data);
 
         // Create a source node from the buffer.
         this.node = context.createBufferSource();
@@ -87,7 +67,6 @@
         this.height = height;
         this.width = width;
         this.size = size;
-        console.log(this);
 
         this.noise = new WhiteNoiseGenerated(this.height, this.width);
         this.onLoaded();
